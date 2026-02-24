@@ -1,0 +1,10 @@
+[Unit]
+Description=Write default user to log in under which is the first to sign in.
+ConditionPathExists=!/etc/.deckify-initialized
+
+[Service]
+Type=oneshot
+ExecStart=/usr/libexec/deckify-init
+
+[Install]
+WantedBy=multi-user.target

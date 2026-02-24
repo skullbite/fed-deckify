@@ -1,24 +1,29 @@
 #!/bin/bash
 
-set -ouex pipefail
+set -euxo pipefail
 
-### Install packages
+# arch deckify
+echo "ALL ALL=(ALL) NOPASSWD: /usr/bin/sed -i s/^Session=*/Session=*/ /etc/sddm.conf" | sudo tee "/etc/sudoers.d/session_override.conf" > /dev/null
 
-# Packages can be installed from any enabled yum repo on the image.
-# RPMfusion repos are available by default in ublue main images
-# List of rpmfusion packages can be found here:
-# https://mirrors.rpmfusion.org/mirrorlist?path=free/fedora/updates/43/x86_64/repoview/index.html&protocol=https&redirect=1
+sed -i "s/#Session=/Session=plasma/g" /etc/sddm.conf
+cat /etc/sddm.conf
 
-# this installs a package from fedora repos
-dnf5 install -y tmux 
+dnf install -y steam gamescope mangohud
+cd /tmp
+git clone https://github.com/shahnawazshahin/steam-using-gamescope-guide
+cd steam-using-gamescope-guide/usr
 
-# Use a COPR Example:
-#
-# dnf5 -y copr enable ublue-os/staging
-# dnf5 -y install package
-# Disable COPRs so they don't end up enabled on the final image:
-# dnf5 -y copr disable ublue-os/staging
+for f in $(ls ./bin); do
+    cp -r ./bin/$f /usr/bin/$f
+done
 
-#### Example for enabling a System Unit File
+plasma-apply-wallpaperimage
+
+cp ./share/wayland-sessions/steam.desktop /usr/share/wayland-sessions/steam.desktop
+
+rsync -rvK /ctx/sys/ /
+
+cd /tmp
 
 systemctl enable podman.socket
+systemctl enable deckify-init

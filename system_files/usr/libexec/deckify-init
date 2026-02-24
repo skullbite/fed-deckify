@@ -1,0 +1,13 @@
+#!/bin/bash
+
+USERS=$(awk -F: '{ print $1 }' /etc/passwd)
+# prune system-generated users
+USERS=$(echo $USERS | sed "s/root/ /g" | sed "s/stapunpriv/ /g")
+
+if [[ -z $USERS ]]; then
+   echo "No valid users for autologin"
+   exit 1
+fi
+
+sed -i "s/#User=/User=${USERS[0]}/g" /etc/sddm.conf
+touch /etc/.deckify-initialized
